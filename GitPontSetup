@@ -1,0 +1,31 @@
+#!/bin/bash
+#check parameter, parameters are URL
+if [ "$#" -lt 1 ]; then
+	echo "Necesito una URL "
+	exit 1
+fi
+#Stuff to set up GitPont & utils
+
+#First a small update to get the server to the latest version
+yum -y update
+yum install -y nmap #to know whats happening
+
+
+#gitlab will be installed
+
+#On CentOS 7 (and RedHat/Oracle/Scientific Linux 7), the commands below will also open HTTP and SSH access in the system firewall.
+sudo yum install -y curl policycoreutils-python openssh-server
+sudo systemctl enable sshd
+sudo systemctl start sshd
+sudo firewall-cmd --permanent --add-service=http
+sudo systemctl reload firewalld
+
+#Install Postfix para email
+sudo yum install postfix
+sudo systemctl enable postfix
+sudo systemctl start postfix
+
+#add gitlab package
+curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ee/script.rpm.sh | sudo bash
+sudo EXTERNAL_URL="http://gitlab.example.com" yum install -y gitlab-ee
+
