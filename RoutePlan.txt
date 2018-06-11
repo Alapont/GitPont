@@ -1,0 +1,5 @@
+20180611
+	Created scripts to initialise a RHEL server with nice repos (it's dull if you know it is hard if you dont, just trying to make it noob friendly)
+	I'm going to create a set of networking and sysadmin tools to install, just for goodsake, but wont be needed for gitlab propper working, just nice cings for a nice sysadmin (mc htop)
+	I'd probably fill a huge list of packages with a flag just to let it work with a default clean {just gitlab} complete = clean + {htop mc sl}
+	Other option will be the ONLY configurable part of the install and is the internet direction (why isn't it a line in a */gitlab/file?)
