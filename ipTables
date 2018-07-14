@@ -1,0 +1,46 @@
+#!/bin/bash
+#basic script to set iptables
+
+#check sudo privileges
+if [[ $EUID -ne 0 ]]
+then
+    echo -e "run as root"
+    exit 1
+fi
+read -p "Flushing ipTables,.Are you sure? " -n 1 -r
+echo    # (optional) move to a new line
+if [[ !( $REPLY =~ ^[Yy]$ ) ]]
+then
+    exit 2
+fi
+
+#Flush and default drop
+iptables -F
+iptables -P INPUT DROP
+iptables -P OUTPUT DROP
+#iptables -P FORWARD DROP
+
+
+#loopback
+iptables -A INPUT -i lo -j ACCEPT
+iptables -A OUTPUT -o lo -j ACCEPT
+
+#return established connections
+#iptables -A OUTPUT -m conntrack --ctstate ESTABLISHED -j ACCEPT
+
+#open ssh
+iptables -A INPUT -p tcp --dport 22 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+iptables -A OUTPUT -p tcp --sport 22 -m conntrack --ctstate ESTABLISHED -j ACCEPT
+
+
+#gitlab stuff
+#web services #Sholud be deprecated
+iptables -A INPUT -p tcp --dport 80 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+iptables -A OUTPUT -p tcp --dport 80 -m conntrack --ctstate ESTABLISHED -j ACCEPT
+#secure web services
+iptables -A INPUT -p tcp --dport 443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+iptables -A OUTPUT -p tcp --dport 443 -m conntrack --ctstate ESTABLISHED -j ACCEPT
+#gitlab unicorn somethin something
+iptables -A INPUT -p tcp --dport 8080 -m conntrack--ctstate NEW,ESTABLISHED -j ACCEPT
+iptables-A OUTPUT -p tcp --dport 8080 -m conntrack --ctstate ESTABLISHED -j ACCEPT
+#port 80 should be blocked, but will be up just for testing purposes and fear of everything exploding
