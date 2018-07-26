@@ -20,6 +20,10 @@ sudo systemctl start sshd
 sudo firewall-cmd --permanent --add-service=http
 sudo systemctl reload firewalld
 
+# Installing iptables-services (service iptables save wouldn't work)
+sudo yum install iptables-services
+sudo systemctl enable iptables
+
 #Install Postfix para email
 sudo yum install postfix
 sudo systemctl enable postfix
