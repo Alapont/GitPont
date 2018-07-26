@@ -42,5 +42,5 @@ iptables -A INPUT -p tcp --dport 443 -m conntrack --ctstate NEW,ESTABLISHED -j A
 iptables -A OUTPUT -p tcp --dport 443 -m conntrack --ctstate ESTABLISHED -j ACCEPT
 #gitlab unicorn somethin something
 iptables -A INPUT -p tcp --dport 8080 -m conntrack--ctstate NEW,ESTABLISHED -j ACCEPT
-iptables-A OUTPUT -p tcp --dport 8080 -m conntrack --ctstate ESTABLISHED -j ACCEPT
+iptables -A OUTPUT -p tcp --dport 8080 -m conntrack --ctstate ESTABLISHED -j ACCEPT
 #port 80 should be blocked, but will be up just for testing purposes and fear of everything exploding
