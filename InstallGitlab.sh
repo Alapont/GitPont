@@ -14,7 +14,7 @@ firewall-cmd --permanent --add-service=http
 systemctl reload firewalld
 
 #enable smtp
-yum install postfix
+yum install -y postfix
 systemctl enable postfix
 systemctl start postfix
 

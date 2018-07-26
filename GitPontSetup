@@ -1,9 +1,9 @@
 #!/bin/bash
 #check parameter, parameters are URL
-if [ "$#" -lt 1 ]; then
-	echo "Necesito una URL "
-	exit 1
-fi
+#if [ "$#" -lt 1 ]; then
+#	echo "Necesito una URL "
+#	exit 1
+#fi
 #Stuff to set up GitPont & utils
 
 #First a small update to get the server to the latest version
@@ -21,11 +21,11 @@ sudo firewall-cmd --permanent --add-service=http
 sudo systemctl reload firewalld
 
 # Installing iptables-services (service iptables save wouldn't work)
-sudo yum install iptables-services
+sudo yum install -y iptables-services
 sudo systemctl enable iptables
 
 #Install Postfix para email
-sudo yum install postfix
+sudo yum install -y postfix
 sudo systemctl enable postfix
 sudo systemctl start postfix
 
