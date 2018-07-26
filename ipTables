@@ -7,7 +7,7 @@ then
     echo -e "run as root"
     exit 1
 fi
-read -p "Flushing ipTables,.Are you sure? " -n 1 -r
+read -p "Flushing ipTables. Are you sure? (y/n) " -n 1 -r
 echo    # (optional) move to a new line
 if [[ !( $REPLY =~ ^[Yy]$ ) ]]
 then
@@ -41,6 +41,7 @@ iptables -A OUTPUT -p tcp --dport 80 -m conntrack --ctstate ESTABLISHED -j ACCEP
 iptables -A INPUT -p tcp --dport 443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
 iptables -A OUTPUT -p tcp --dport 443 -m conntrack --ctstate ESTABLISHED -j ACCEPT
 #gitlab unicorn somethin something
-iptables -A INPUT -p tcp --dport 8080 -m conntrack--ctstate NEW,ESTABLISHED -j ACCEPT
+iptables -A INPUT -p tcp --dport 8080 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
 iptables -A OUTPUT -p tcp --dport 8080 -m conntrack --ctstate ESTABLISHED -j ACCEPT
 #port 80 should be blocked, but will be up just for testing purposes and fear of everything exploding
+echo Done!
