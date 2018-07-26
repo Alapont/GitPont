@@ -29,7 +29,8 @@ sudo yum install postfix
 sudo systemctl enable postfix
 sudo systemctl start postfix
 
-#add gitlab package
-curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ee/script.rpm.sh | sudo bash
-sudo EXTERNAL_URL="http://gitlab.example.com" yum install -y gitlab-ee
+# add gitlab package
+# curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ee/script.rpm.sh | sudo bash
+# sudo EXTERNAL_URL="http://gitlab.example.com" yum install -y gitlab-ee
+# Removed 'cause it's in InstallGitlab.sh
 
