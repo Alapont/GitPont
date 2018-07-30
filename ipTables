@@ -1,5 +1,9 @@
 #!/bin/bash
 #basic script to set iptables
+#exit codes
+#	1: not root
+#	2: user not accepting
+#	4: culdn't confirm results
 
 #check sudo privileges
 if [[ $EUID -ne 0 ]]
@@ -19,7 +23,6 @@ iptables -F
 iptables -P INPUT DROP
 iptables -P OUTPUT DROP
 #iptables -P FORWARD DROP
-
 
 #loopback
 iptables -A INPUT -i lo -j ACCEPT
@@ -44,3 +47,12 @@ iptables -A OUTPUT -p tcp --dport 443 -m conntrack --ctstate ESTABLISHED -j ACCE
 iptables -A INPUT -p tcp --dport 8080 -m conntrack--ctstate NEW,ESTABLISHED -j ACCEPT
 iptables -A OUTPUT -p tcp --dport 8080 -m conntrack --ctstate ESTABLISHED -j ACCEPT
 #port 80 should be blocked, but will be up just for testing purposes and fear of everything exploding
+
+
+#check if everything has worked, and flush othercase
+read -t 60 -p "Changes done, press enter to finish (otherwise will be flushed in 60 seconds)"
+if [[ $? -ne 0 ]]
+then
+    iptables -F
+    exit 4
+fi
