@@ -18,6 +18,7 @@ function serviceAt {
 
 funcion revert{
 	#AKA ipTables YOLO aka ultraFlush
+	echo reverting
 	iptables -P INPUT ACCEPT
 	iptables -P OUTPUT ACCEPT
 	iptables -F
@@ -28,6 +29,13 @@ if [[ $EUID -ne 0 ]]
 then
     echo -e "run as root"
     exit 1
+fi
+if [[ $# -gt 0 ]]
+then
+	if [[ $1 -eq '-F' ]]
+	then
+		revert
+	fi
 fi
 read -p "Flushing ipTables, Are you sure? " -n 1 -r
 echo    # (optional) move to a new line
@@ -52,20 +60,24 @@ iptables -A OUTPUT -o lo -j ACCEPT
 
 
 #open ssh
-iptables -A INPUT -p tcp --dport 22 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
-iptables -A OUTPUT -p tcp --sport 22 -m conntrack --ctstate ESTABLISHED -j ACCEPT
+serviceAt 22
+#iptables -A INPUT -p tcp --dport 22 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+#iptables -A OUTPUT -p tcp --sport 22 -m conntrack --ctstate ESTABLISHED -j ACCEPT
 
 
 #gitlab stuff
 #web services #Sholud be deprecated
-iptables -A INPUT -p tcp --dport 80 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
-iptables -A OUTPUT -p tcp --sport 80 -m conntrack --ctstate ESTABLISHED -j ACCEPT
+serviceAt 80
+#iptables -A INPUT -p tcp --dport 80 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+#iptables -A OUTPUT -p tcp --sport 80 -m conntrack --ctstate ESTABLISHED -j ACCEPT
 #secure web services
-iptables -A INPUT -p tcp --dport 443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
-iptables -A OUTPUT -p tcp --sport 443 -m conntrack --ctstate ESTABLISHED -j ACCEPT
+serviceAt 443
+#iptables -A INPUT -p tcp --dport 443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+#iptables -A OUTPUT -p tcp --sport 443 -m conntrack --ctstate ESTABLISHED -j ACCEPT
 #gitlab unicorn somethin something
-iptables -A INPUT -p tcp --dport 8080 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
-iptables -A OUTPUT -p tcp --sport 8080 -m conntrack --ctstate ESTABLISHED -j ACCEPT
+serviceAt 8080
+#iptables -A INPUT -p tcp --dport 8080 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+#iptables -A OUTPUT -p tcp --sport 8080 -m conntrack --ctstate ESTABLISHED -j ACCEPT
 #port 80 should be blocked, but will be up just for testing purposes and fear of everything exploding
 
 
@@ -73,6 +85,6 @@ iptables -A OUTPUT -p tcp --sport 8080 -m conntrack --ctstate ESTABLISHED -j ACC
 read -t 60 -p "Changes done, press enter to finish (otherwise will be flushed in 60 seconds)\n"
 if [[ $? -ne 0 ]]
 then
-    iptables -F
+    revert
     exit 4
 fi
