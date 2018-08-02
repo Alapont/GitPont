@@ -5,6 +5,24 @@
 #	2: user not accepting
 #	4: culdn't confirm results
 
+function serviceAt {
+	if [[ $# -ne 1 ]]
+	then
+		echo serviceAt: badArgs
+		#¿should I call to revert?
+		exit 1
+	fi
+	iptables -A INPUT -p tcp --dport $1 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+	iptables -A OUTPUT -p tcp --sport $1 -m conntrack --ctstate ESTABLISHED -j ACCEPT
+}
+
+funcion revert{
+	#AKA ipTables YOLO aka ultraFlush
+	iptables -P INPUT ACCEPT
+	iptables -P OUTPUT ACCEPT
+	iptables -F
+}
+
 #check sudo privileges
 if [[ $EUID -ne 0 ]]
 then
