@@ -1,0 +1,85 @@
+#!/bin/bash
+#basic script to set iptables
+#exit codes
+#	1: not root
+#	2: user not accepting
+#	4: culdn't confirm results
+
+function serviceAt {
+	if [[ $# -ne 1 ]]
+	then
+		echo serviceAt: badArgs
+		#¿should I call to revert?
+		exit 1
+	fi
+	iptables -A INPUT -p tcp --dport $1 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+	iptables -A OUTPUT -p tcp --sport $1 -m conntrack --ctstate ESTABLISHED -j ACCEPT
+}
+
+function revert {
+	#AKA ipTables YOLO aka ultraFlush
+	echo reverting
+	iptables -P INPUT ACCEPT
+	iptables -P OUTPUT ACCEPT
+	iptables -F
+}
+
+source ./oteaConfig
+
+#check sudo privileges
+if [[ $EUID -ne 0 ]]
+then
+    echo -e "run as root"
+    exit 1
+fi
+if [[ $# -gt 0 ]]
+then
+	if [[ $1 -eq '-F' ]]
+	then
+		revert
+	fi
+else
+	read -p "Flushing ipTables, Are you sure? " -n 1 -r
+	echo    # (optional) move to a new line
+	if [[ !( $REPLY =~ ^[Yy]$ ) ]]
+	then
+	    exit 2
+	fi
+
+	#Flush and default drop
+	iptables -F
+	iptables -P INPUT DROP
+	iptables -P OUTPUT DROP
+	#iptables -P FORWARD DROP
+
+	#loopback
+	iptables -A INPUT -i lo -j ACCEPT
+	iptables -A OUTPUT -o lo -j ACCEPT
+
+	#----------SERVICES----------
+	#open ssh
+	serviceAt 22
+	
+	#gitlab stuff
+	#port 80 should be blocked, but will be up just for testing purposes and fear of everything exploding
+	serviceAt 80
+	#secure web services
+	serviceAt 443
+	#gitlab unicorn somethin something
+	serviceAt 8080
+	
+	#----------outwards needs and monitoring stuff---------
+	Mon_Ip="10.147.138.174"
+	iptables -A INPUT -p icmp --icmp-type 8 -s 0/0 -d $Mon_Ip -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+	iptables -A OUTPUT -p icmp --icmp-type 0 -s $Mon_Ip -d 0/0 -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+
+
+	#check by user and the ability to return feedback if everything has worked, and flush othercase
+	read -t 60 -p "Changes done, press enter to finish (otherwise will be flushed in 60 seconds)\n"
+	if [[ $? -ne 0 ]]
+	then
+	    revert
+	    exit 4
+	fi
+fi
