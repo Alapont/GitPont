@@ -2,6 +2,11 @@
 # copied from about.gitlab.com/installation/#centos-7
 #todo check root
 #enable ssh & http
+if [ "$#" -lt 1 ]; then
+        echo "Introduce la URL externa de GitLab"
+        exit 1
+fi
+
 yum install -y curl policycoreutils-python openssh-server
 systemctl enable sshd
 systemctl start sshd
@@ -9,7 +14,7 @@ firewall-cmd --permanent --add-service=http
 systemctl reload firewalld
 
 #enable smtp
-yum install postfix
+yum install -y postfix
 systemctl enable postfix
 systemctl start postfix
 
